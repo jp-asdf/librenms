@@ -23,12 +23,6 @@ from socket import gethostname
 from signal import signal, SIGTERM, SIGQUIT, SIGINT, SIGHUP, SIGCHLD, SIG_DFL
 from uuid import uuid1
 
-try:
-    from systemd.daemon import notify
-except ImportError:
-    pass
-
-
 
 class ServiceConfig:
     def __init__(self):
@@ -296,7 +290,6 @@ class Service:
             self.watchdog_timer = LibreNMS.RecurringTimer(self.config.poller.frequency, self.logfile_watchdog, 'watchdog')
         else:
             info("Watchdog is disabled.")
-        self.systemd_watchdog_timer = LibreNMS.RecurringTimer(10, self.systemd_watchdog, 'systemd-watchdog')
         self.is_master = False
 
     def service_age(self):
@@ -360,7 +353,6 @@ class Service:
         if self.config.update_enabled:
             self.daily_timer.start()
         self.stats_timer.start()
-        self.systemd_watchdog_timer.start()
         if self.config.watchdog_enabled:
             self.watchdog_timer.start()
 
@@ -381,8 +373,11 @@ class Service:
                     self.restart()
 
                 if self.reap_flag:
-                    self.reap_flag = False
                     self.reap_psutil()
+
+                    # Re-arm the signal handler
+                    signal(SIGCHLD, self.reap)
+                    self.reap_flag = False
 
                 master_lock = self._acquire_master()
                 if master_lock:
@@ -552,6 +547,11 @@ class Service:
         :param signalnum: UNIX signal number
         :param flag: Flags accompanying signal
         """
+        handler = signal(SIGCHLD, SIG_DFL)
+        if handler == SIG_DFL:
+            # signal is already being handled, bail out as this handler is not reentrant - the kernel will re-raise the signal later
+            return
+
         self.reap_flag = True
 
     def reload(self, signalnum=None, flag=None):
@@ -585,7 +585,6 @@ class Service:
 
         self.daily_timer.stop()
         self.stats_timer.stop()
-        self.systemd_watchdog_timer.stop()
         if self.config.watchdog_enabled:
             self.watchdog_timer.stop()
 
@@ -676,10 +675,6 @@ class Service:
                                )
         except pymysql.err.Error:
             exception("Unable to log performance statistics - is the database still online?")
-
-    def systemd_watchdog(self):
-        if 'systemd.daemon' in sys.modules:
-            notify("WATCHDOG=1")
 
     def logfile_watchdog(self):
 

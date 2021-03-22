@@ -71,7 +71,7 @@ $query = "SELECT DATE_FORMAT(time_logged, '" . \LibreNMS\Config::get('alert_grap
         }
     }
 
-    $graph_data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $graph_data = _json_encode($data);
     ?>
     var groups = new vis.DataSet();
 <?php

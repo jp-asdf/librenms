@@ -1384,8 +1384,6 @@ function list_oxidized(Illuminate\Http\Request $request)
 
         // We remap certain device OS' that have different names with Oxidized models
         $models = [
-            'airos-af-ltu' => 'airfiber',
-            'airos-af'   => 'airfiber',
             'arista_eos' => 'eos',
             'vyos'       => 'vyatta',
             'slms'       => 'zhoneolt',
