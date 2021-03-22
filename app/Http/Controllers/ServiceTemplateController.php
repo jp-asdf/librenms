@@ -69,9 +69,11 @@ class ServiceTemplateController extends Controller
                 'groups.*' => 'integer',
                 'devices' => 'array',
                 'devices.*' => 'integer',
-                'check' => 'string',
-                'type' => 'required|in:dynamic,static',
-                'rules' => 'json|required_if:type,dynamic',
+                'type' => 'string',
+                'dtype' => 'required|in:dynamic,static',
+                'dgtype' => 'required|in:dynamic,static',
+                'drules' => 'json|required_if:dtype,dynamic',
+                'dgrules' => 'json|required_if:dgtype,dynamic',
                 'param' => 'nullable|string',
                 'ip' => 'nullable|string',
                 'desc' => 'nullable|string',
@@ -85,9 +87,11 @@ class ServiceTemplateController extends Controller
             $request->only(
                 [
                     'name',
-                    'check',
                     'type',
-                    'rules',
+                    'dtype',
+                    'dgtype',
+                    'drules',
+                    'dgrules',
                     'param',
                     'ip',
                     'desc',
@@ -97,14 +101,16 @@ class ServiceTemplateController extends Controller
                 ]
             )
         );
-        $template->rules = json_decode($request->rules);
+        $template->drules = json_decode($request->drules);
+        $template->dgrules = json_decode($request->dgrules);
         $template->save();
 
-        if ($request->type == 'static') {
+        if ($request->dtype == 'static') {
             $template->devices()->sync($request->devices);
         }
-
-        $template->groups()->sync($request->groups);
+        if ($request->dgtype == 'static') {
+            $template->groups()->sync($request->groups);
+        }
         Toastr::success(__('Service Template :name created', ['name' => $template->name]));
 
         return redirect()->route('services.templates.index');
@@ -159,13 +165,15 @@ class ServiceTemplateController extends Controller
                         }
                     ),
                 ],
-                'type' => 'required|in:dynamic,static',
-                'rules' => 'json|required_if:type,dynamic',
+                'dtype' => 'required|in:dynamic,static',
+                'drules' => 'json|required_if:dtype,dynamic',
                 'devices' => 'array',
                 'devices.*' => 'integer',
+                'dgtype' => 'required|in:dynamic,static',
+                'dgrules' => 'json|required_if:dgtype,dynamic',
                 'groups' => 'array',
                 'groups.*' => 'integer',
-                'check' => 'string',
+                'type' => 'string',
                 'param' => 'nullable|string',
                 'ip' => 'nullable|string',
                 'desc' => 'nullable|string',
@@ -179,9 +187,11 @@ class ServiceTemplateController extends Controller
             $request->only(
                 [
                     'name',
-                    'check',
                     'type',
-                    'rules',
+                    'dtype',
+                    'dgtype',
+                    'drules',
+                    'dgrules',
                     'param',
                     'ip',
                     'desc',
@@ -193,22 +203,27 @@ class ServiceTemplateController extends Controller
         );
 
         $devices_updated = false;
-        if ($template->type == 'static') {
+        if ($template->dtype == 'static') {
             // sync device_ids from input
             $updated = $template->devices()->sync($request->get('devices', []));
             // check for attached/detached/updated
             $devices_updated = array_sum(array_map(function ($device_ids) {
                 return count($device_ids);
             }, $updated)) > 0;
-        } elseif ($template->type == 'dynamic') {
-            $template->rules = json_decode($request->rules);
-        } elseif ($template->type == 'groups') {
+        } else {
+            $template->drules = json_decode($request->drules);
+        }
+
+        $device_groups_updated = false;
+        if ($template->dgtype == 'static') {
             // sync device_group_ids from input
             $updated = $template->groups()->sync($request->get('groups', []));
             // check for attached/detached/updated
             $device_groups_updated = array_sum(array_map(function ($device_group_ids) {
                 return count($device_group_ids);
             }, $updated)) > 0;
+        } else {
+            $template->dgrules = json_decode($request->dgrules);
         }
 
         if ($template->isDirty() || $devices_updated || $device_groups_updated) {
@@ -222,7 +237,8 @@ class ServiceTemplateController extends Controller
                 }
             } catch (\Illuminate\Database\QueryException $e) {
                 return redirect()->back()->withInput()->withErrors([
-                    'rules' => __('Rules resulted in invalid query: ') . $e->getMessage(),
+                    'drules' => __('Rules resulted in invalid query: ') . $e->getMessage(),
+                    'dgrules' => __('Rules resulted in invalid query: ') . $e->getMessage(),
                 ]);
             }
         } else {
@@ -248,7 +264,7 @@ class ServiceTemplateController extends Controller
                     ],
                     [
                         'service_name' => $template->name,
-                        'service_type' => $template->check,
+                        'service_type' => $template->type,
                         'service_template_id' => $template->id,
                         'service_param' => $template->param,
                         'service_ip' => $template->ip,
@@ -279,7 +295,7 @@ class ServiceTemplateController extends Controller
                 ],
                 [
                     'service_name' => $template->name,
-                    'service_type' => $template->check,
+                    'service_type' => $template->type,
                     'service_template_id' => $template->id,
                     'service_param' => $template->param,
                     'service_ip' => $template->ip,
@@ -302,7 +318,7 @@ class ServiceTemplateController extends Controller
     public function applyAll()
     {
         foreach (ServiceTemplate::all() as $template) {
-            $this->apply($template);
+            ServiceTemplateController::apply($template);
         }
         $msg = __('All Service Templates have been applied');
 

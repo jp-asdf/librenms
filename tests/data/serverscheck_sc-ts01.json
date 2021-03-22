@@ -3,12 +3,12 @@
         "discovery": {
             "devices": [
                 {
-                    "sysName": "sensor gateway: sc-ts01",
+                    "sysName": "<private>",
                     "sysObjectID": ".1.3.6.1.4.1.17095",
                     "sysDescr": "Temperature & Sensor Gateway",
                     "sysContact": "<private>",
                     "version": "2.11",
-                    "hardware": "SC-TS01",
+                    "hardware": null,
                     "features": null,
                     "os": "serverscheck",
                     "type": "environment",

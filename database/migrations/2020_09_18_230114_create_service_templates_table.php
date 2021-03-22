@@ -17,11 +17,9 @@ class CreateServiceTemplatesTable extends Migration
             $table->text('ip')->nullable()->default(null);
             $table->string('type');
             $table->string('dtype', 16)->default('static');
+            $table->string('dgtype', 16)->default('static');
             $table->text('drules')->nullable();
-            if (\LibreNMS\DB\Eloquent::getDriver() !== 'sqlite') {
-                $table->string('dgtype', 16)->default('static');
-                $table->text('dgrules')->nullable();
-            }
+            $table->text('dgrules')->nullable();
             $table->text('desc')->nullable()->default(null);
             $table->text('param')->nullable()->default(null);
             $table->boolean('ignore')->default(0);

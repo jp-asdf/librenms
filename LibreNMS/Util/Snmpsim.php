@@ -173,7 +173,7 @@ class Snmpsim
         unset($this->proc);
     }
 
-    public function findSnmpsimd()
+    private function findSnmpsimd()
     {
         $cmd = Config::locateBinary('snmpsimd');
         if (! is_executable($cmd)) {

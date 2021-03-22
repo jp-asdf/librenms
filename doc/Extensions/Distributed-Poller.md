@@ -4,7 +4,6 @@ path: blob/master/doc/
 # Distributed Poller
 
 A normal install contains all parts of LibreNMS:
-
 - Poller/Discovery/etc workers
 - RRD (Time series data store) *
 - Database *
@@ -25,7 +24,6 @@ RRDcached.
 It is also a requirement that at least one locking service is in place
 to which all pollers can connect. There are currently three locking 
 mechanisms available
-
 - memcached
 - redis (preferred)
 - sql locks (default)

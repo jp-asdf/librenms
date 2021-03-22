@@ -33,9 +33,6 @@ $alert_severities = [
     'warning only' => 5,
     'critical only' => 6,
 ];
-if (Auth::user()->hasGlobalAdmin()) {
-    $admin_verbose_details = '<th data-column-id="verbose_details" data-sortable="false">Details</th>';
-}
 
 //if( defined('SHOW_SETTINGS') || empty($widget_settings) ) {
 if (defined('SHOW_SETTINGS')) {
@@ -235,8 +232,7 @@ if (defined('SHOW_SETTINGS')) {
                 <th data-column-id="hostname">Hostname</th>
                 <th data-column-id="location">Location</th>
                 <th data-column-id="ack_ico" data-sortable="false">ACK</th>
-                <th data-column-id="notes" data-sortable="false">Notes</th>
-                ' . $admin_verbose_details . '';
+                <th data-column-id="notes" data-sortable="false">Notes</th>';
 
     if ($proc == '1') {
         $common_output[] = '<th data-column-id="proc" data-sortable="false">URL</th>';
@@ -318,12 +314,6 @@ var alerts_grid = $("#alerts_' . $unique_id . '").bootgrid({
         var alert_id = $(this).data(\'alert_id\');
         $(\'#alert_id\').val(alert_id);
         $("#alert_notes_modal").modal(\'show\');
-    });
-    alerts_grid.find(".command-alert-details").on("click", function(e) {
-      e.preventDefault();
-      var alert_log_id = $(this).data(\'alert_log_id\');
-      $(\'#alert_log_id\').val(alert_log_id);
-      $("#alert_details_modal").modal(\'show\');
     });
 });
 </script>';

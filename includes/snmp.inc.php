@@ -163,14 +163,10 @@ function gen_snmp_cmd($cmd, $device, $oids, $options = null, $mib = null, $mibdi
         array_push($cmd, '-m', $mib);
     }
     array_push($cmd, '-M', mibdir($mibdir, $device));
-
-    $timeout = prep_snmp_setting($device, 'timeout');
-    if ($timeout && $timeout !== 1) {
+    if ($timeout = prep_snmp_setting($device, 'timeout')) {
         array_push($cmd, '-t', $timeout);
     }
-
-    $retries = prep_snmp_setting($device, 'retries');
-    if ($retries && $retries !== 5) {
+    if ($retries = prep_snmp_setting($device, 'retries')) {
         array_push($cmd, '-r', $retries);
     }
 
@@ -785,12 +781,12 @@ function snmp_translate($oid, $mib = 'ALL', $mibdir = null, $options = null, $de
     $cmd = [Config::get('snmptranslate', 'snmptranslate'), '-M', mibdir($mibdir, $device), '-m', $mib];
 
     if (oid_is_numeric($oid)) {
-        $default_options = ['-Os', '-Pu'];
+        $default_options = '-Os';
     } else {
         if ($mib != 'ALL' && ! Str::contains($oid, '::')) {
             $oid = "$mib::$oid";
         }
-        $default_options = ['-On', '-Pu'];
+        $default_options = '-On';
     }
     $options = is_null($options) ? $default_options : $options;
     $cmd = array_merge($cmd, (array) $options);

@@ -47,6 +47,7 @@ foreach ($vrfs_lite_cisco as $vrf) {
     $ipv4_addresses = array_map(function ($data) {
         return $data['ipv4_address'];
     }, $existing_data);
+
     $arp_table = [];
     $insert_data = [];
     foreach ($arp_data as $ifIndex => $data) {
@@ -55,7 +56,7 @@ foreach ($vrfs_lite_cisco as $vrf) {
 
         $port_arp = array_merge(
             (array) $data['ipNetToMediaPhysAddress'],
-            is_array($data['ipNetToPhysicalPhysAddress']) ? (array) $data['ipNetToPhysicalPhysAddress']['ipv4'] : []
+            (array) $data['ipNetToPhysicalPhysAddress']['ipv4']
         );
 
         echo "{$interface['ifName']}: \n";

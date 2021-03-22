@@ -85,4 +85,4 @@ if (isset($vars['template']) && empty(view(['template' => $vars['template']], []
 
 $response = ['status' => $status, 'message' => $message, 'newid' => $template_newid];
 
-echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+echo _json_encode($response);

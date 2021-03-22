@@ -69,7 +69,6 @@ class StringHelpers
             'powerdns' => 'PowerDNS',
             'powerdns-dnsdist' => 'PowerDNS dnsdist',
             'powerdns-recursor' => 'PowerDNS Recursor',
-            'powermon' => 'PowerMon',
             'pureftpd' => 'PureFTPd',
             'rrdcached' => 'RRDCached',
             'sdfsinfo' => 'SDFS info',

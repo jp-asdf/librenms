@@ -38,7 +38,7 @@ $APstats = snmpwalk_cache_oid($device, 'bsnApIfNoOfUsers', $APstats, 'AIRESPACE-
 $loadParams = snmpwalk_cache_oid($device, 'bsnAPIfLoadChannelUtilization', $loadParams, 'AIRESPACE-WIRELESS-MIB', null, '-OQUsb');
 $interferences = snmpwalk_cache_oid($device, 'bsnAPIfInterferencePower', $interferences, 'AIRESPACE-WIRELESS-MIB', null, '-OQUsb');
 
-$numAccessPoints = is_countable($stats) ? count($stats) : 0;
+$numAccessPoints = count($stats);
 $numClients = 0;
 
 foreach ($APstats as $key => $value) {
